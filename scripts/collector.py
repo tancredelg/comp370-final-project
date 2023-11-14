@@ -34,7 +34,10 @@ def collect_news(api_key: str, lookback_days: int, keywords_file, language='en',
 
 def main():
     parser = argparse.ArgumentParser(
-        description=f"Collects news articles using NewsAPI. Output files are stored in {data_dir}.")
+        description=f"Collects news articles using NewsAPI. Output files are stored"
+                    f" in the 'data' directory (same level as the 'scripts' directory)."
+                    f"\n\nExample usage:\npython -m collector -a ******** -k keyword_sets.json -d 31 --title-only",
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("-a", "--api-key",
                         required=True,
                         help="Your NewsAPI API key.")
