@@ -2,7 +2,7 @@ import argparse
 import datetime
 import json
 from pathlib import Path
-from newsapi import fetch_news
+from newsapi import fetch_news_lookback, fetch_news_on_date
 
 data_dir = Path(__file__).parent.parent / 'data'
 if not Path.exists(data_dir):
@@ -18,11 +18,11 @@ def collect_news(api_key: str, date: datetime.date, keywords_file, language='en'
 
     for keyword_set in keyword_sets:
         for set_name, keywords in keyword_set.items():
-            news = fetch_news(api_key,
-                              date,
-                              keywords=keywords,
-                              language=language,
-                              search_title_only=search_title_only)
+            news = fetch_news_on_date(api_key,
+                                      date,
+                                      keywords=keywords,
+                                      language=language,
+                                      search_title_only=search_title_only)
 
             output_file = Path(data_dir / 'articles' / f'{set_name}_articles.json')
 
@@ -35,6 +35,32 @@ def collect_news(api_key: str, date: datetime.date, keywords_file, language='en'
                 json.dump(news, json_file, ensure_ascii=False, indent=4)
 
             print(f"Collected news for {set_name} from {date}"
+                  f" and saved it in {Path(output_file).relative_to(data_dir.parent)}")
+
+
+def collect_news_lookback(api_key: str, lookback_days: int, keywords_file, language='en', search_title_only=False, append=False):
+    with open(keywords_file, 'r', encoding='utf-8') as file:
+        keyword_sets = json.load(file)
+
+    for keyword_set in keyword_sets:
+        for set_name, keywords in keyword_set.items():
+            news = fetch_news_lookback(api_key,
+                                       lookback_days,
+                                       keywords=keywords,
+                                       language=language,
+                                       search_title_only=search_title_only)
+
+            output_file = Path(data_dir / 'articles' / f'{set_name}_articles.json')
+
+            if append:
+                with open(output_file, 'r', encoding='utf-8') as existing_data:
+                    existing_data = json.load(json_file)
+                    news.extend(existing_data)
+
+            with open(output_file, 'w', encoding='utf-8') as json_file:
+                json.dump(news, json_file, ensure_ascii=False, indent=4)
+
+            print(f"Collected news for {set_name} from the last {lookback_days} days"
                   f" and saved it in {Path(output_file).relative_to(data_dir.parent)}")
 
 

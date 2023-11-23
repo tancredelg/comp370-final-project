@@ -2,7 +2,7 @@ import requests
 from datetime import datetime, timedelta
 
 
-def fetch_news(api_key: str, date: datetime.date, keywords: list, language='en', search_title_only=False) -> list | None:
+def fetch_news_on_date(api_key: str, date: datetime.date, keywords: list, language='en', search_title_only=False):
     """
 Fetch news articles from the NewsAPI 'everything' endpoint, with the request parameters specified.
     :param api_key: The api key to use for the NewsAPI request.
@@ -25,12 +25,41 @@ Fetch news articles from the NewsAPI 'everything' endpoint, with the request par
         'q': ' OR '.join(keywords),  # Combine multiple keywords with 'OR' for a broader search
         'language': language,
         'sortBy': 'publishedAt',
-        'from': date
+        'from': date,
+        'to': date
     }
 
     if search_title_only:
         params['searchIn'] = 'title'
 
+    return fetch_news(api_key, params)
+
+
+def fetch_news_lookback(api_key: str, lookback_days: int, keywords: list, language='en', search_title_only=False):
+    if len(keywords) < 1:
+        raise ValueError("keywords must include at least 1 keyword")
+
+    if lookback_days > 30:
+        raise ValueError("Date must be within the last 30 days.")
+
+    start_date = (datetime.now() - timedelta(days=lookback_days)).strftime('%Y-%m-%d')
+
+    # Define the parameters for the API request
+    params = {
+        'apiKey': api_key,
+        'q': ' OR '.join(keywords),  # Combine multiple keywords with 'OR' for a broader search
+        'language': language,
+        'sortBy': 'publishedAt',
+        'from': start_date
+    }
+
+    if search_title_only:
+        params['searchIn'] = 'title'
+
+    return fetch_news(api_key, params)
+
+
+def fetch_news(api_key: str, params):
     try:
         response = requests.get('https://newsapi.org/v2/everything', params=params)
 
