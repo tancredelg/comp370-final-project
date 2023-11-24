@@ -29,12 +29,9 @@ def collect_news(api_key: str, start_date: datetime.date, end_date: datetime.dat
             if news is None:
                 continue
 
-            #news = json.loads('[{"source": {"id": null, "name": "me.com"}, "author": "tancrede", "title": "‘Killers of the Flower Moon’", "description": "new article about Killers of the Flower Moon",'
-            #                  ' "publishedAt": "2023-11-01"}]')
-
             output_file = Path(data_dir / 'articles' / f'{set_name}_articles.json')
 
-            if append and os.stat(output_file).st_size > 0:
+            if append and Path.exists(output_file) and os.stat(output_file).st_size > 0:
                 with open(output_file, 'r', encoding='utf-8') as existing_file:
                     existing_data = json.load(existing_file)
                     existing_data.extend(news)
@@ -43,7 +40,7 @@ def collect_news(api_key: str, start_date: datetime.date, end_date: datetime.dat
             with open(output_file, 'w', encoding='utf-8') as json_file:
                 json.dump(news, json_file, ensure_ascii=False, indent=4)
 
-            print(f"Collected news for {set_name} from {start_date} to {end_date}"
+            print(f"Collected news for '{set_name}' from {start_date} to {end_date}"
                   f" and saved it in {Path(output_file).relative_to(data_dir.parent)}")
 
 
@@ -51,7 +48,7 @@ def main():
     parser = argparse.ArgumentParser(
         description=f"Collects news articles using NewsAPI. Output files are stored"
                     f" in the 'data' directory (same level as the 'scripts' directory).\n\n"
-                    f"Example usage:\npython -m collector -a ******** -k keyword_sets.json -d 2023-11-17 --title-only",
+                    f"Example usage:\npython -m collect_news -a ******** -k keyword_sets.json -d 2023-11-17 --title-only",
         formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("-a", "--api-key",
                         required=True,
