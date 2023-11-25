@@ -1,3 +1,5 @@
+import time
+
 import requests
 from datetime import datetime
 
@@ -86,7 +88,8 @@ def get_news(api_key: str, endpoint: str, params) -> list | None:
             print(f"newsapi: Pages to fetch for this query: {pages_to_get}")
             for i in range(2, pages_to_get + 1):
                 params['page'] = i
-                print(f"newsapi: fetching page {i}")
+                print(f"newsapi: fetching page {i} in 10 seconds (delay is too avoid getting rate limited by the api).")
+                time.sleep(10)
                 response = requests.get('https://newsapi.org/v2/everything', params=params)
                 if response.status_code == 200:
                     news_data = response.json()
@@ -94,6 +97,7 @@ def get_news(api_key: str, endpoint: str, params) -> list | None:
                 else:
                     print("newsapi: Failed to fetch additional pages of the request."
                           " Only the first 100 articles were saved.")
+                    print(f"Error message:\n{response.text}")
 
             print("newsapi: Number of articles fetched: ", len(articles))
             filtered_articles = [a for a in articles if a['title'] != "[Removed]"]
@@ -112,7 +116,7 @@ def get_article_count_from_user(total_results):
     while True:
         try:
             n = int(input(f"newsapi: How many of the articles would you like to fetch?"
-                          f"(each get request can return up to 100, so >100 will require more requests)\n> "))
+                          f" (each get request can return up to 100, so >100 will require more requests)\n> "))
         except Exception as e:
             print("newsapi: Please enter a valid whole number.")
             continue

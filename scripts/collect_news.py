@@ -19,6 +19,7 @@ def collect_news(api_key: str, start_date: datetime.date, end_date: datetime.dat
 
     for keyword_set in keyword_sets:
         for set_name, keywords in keyword_set.items():
+            print(f"collect_news: Fetching news for '{set_name}'...")
             news = fetch_news(api_key,
                               start_date,
                               end_date,
