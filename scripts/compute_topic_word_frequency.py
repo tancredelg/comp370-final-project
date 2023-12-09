@@ -6,20 +6,6 @@ from pathlib import Path
 from collections import Counter, defaultdict
 
 THRESHOLD_FREQUENCY = 1
-TOPICS = ["Plot and storyline",
-          "Cast and characters",
-          "Production and filmmaking",
-          "Themes and messages",
-          "Critical reviews and ratings",
-          "Public reception",
-          "Controversies and debates",
-          "Comparison to other movies",
-          "Production references unrelated to movie",
-          "One line mention, otherwise unrelated",
-          "Impacts of movie",
-          "Unrelated",
-          "General Information",
-          "Film Promotion"]
 
 
 def remove_punctuation(article_description: str) -> str:
@@ -45,7 +31,8 @@ def count_word_freq_per_topic(csv_filepath) -> dict[int, dict[str, int]]:
     df.reset_index()
     for index, row in df.iterrows():
         try:
-            topic = TOPICS[int(row['Annotation']) - 1]
+            #topic = TOPICS[int(row['Annotation']) - 1]
+            topic = row['Annotation']
         except ValueError:
             topic = "null/duplicate"
 
